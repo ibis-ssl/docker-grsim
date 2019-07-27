@@ -1,0 +1,18 @@
+FROM ubuntu:16.04
+
+
+RUN apt-get update -q -qq && apt-get upgrade -y && apt-get install -q -qq -y \
+    vim tmux git build-essential cmake libqt4-dev libgl1-mesa-dev libglu1-mesa-dev libprotobuf-dev protobuf-compiler libode-dev libboost-dev
+RUN git clone https://github.com/szi/vartypes.git &&\
+    cd vartypes && mkdir build && cd build &&\
+    cmake .. &&\
+    make &&\
+    make install
+RUN mkdir /grsim_ws &&\
+    cd grsim_ws &&\
+    git clone https://github.com/mani-monaj/grSim.git &&\
+    cd grSim &&\
+    mkdir build &&\
+    cd build &&\
+    cmake .. &&\
+    make
