@@ -6,7 +6,7 @@ cname=${DOCKER_CONTAINER:-"grsim"} ## name of container (should be same as in ex
 
 DEFAULT_USER_DIR="$(pwd)"
 
-VAR=${@:-"/grsim_ws/grSim/bin/grsim"}
+VAR=${@:-"/grsim_ws/grSim/bin/grSim"}
 
 ## --net=mynetworkname
 ## docker inspect -f '{{.NetworkSettings.Networks.mynetworkname.IPAddress}}' ${cname}
@@ -24,13 +24,26 @@ if [ "$(docker container ls -aq -f name=${cname})" ]; then
     docker rm ${cname}
 fi
 
-docker run ${OPT}    \
-    --privileged     \
-    --runtime=nvidia \
-    ${NET_OPT}       \
-    --env="DISPLAY"  \
-    --env="QT_X11_NO_MITSHM=1" \
-    --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
-    --name=${cname} \
-    -w="/userdir" \
-    ${iname} ${VAR}
+if type nvidia-smi; then
+    docker run ${OPT}    \
+        --privileged     \
+        ${NET_OPT}       \
+        --env="DISPLAY"  \
+        --env="QT_X11_NO_MITSHM=1" \
+        --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
+        --gpus=all \
+        --name=${cname} \
+        -w="/userdir" \
+        ${iname} ${VAR}
+else
+    docker run ${OPT}    \
+        --privileged     \
+        ${NET_OPT}       \
+        --env="DISPLAY"  \
+        --env="QT_X11_NO_MITSHM=1" \
+        --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
+        --name=${cname} \
+        -w="/userdir" \
+        ${iname} ${VAR}
+fi
+
