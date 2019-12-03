@@ -1,16 +1,10 @@
 #!/bin/bash
 
 OPT=${DOCKER_OPTION} ## -it --cpuset-cpus 0-2
-iname=${DOCKER_IMAGE:-"ibis/grsim"} ## name of image (should be same as in build.sh)
-cname=${DOCKER_CONTAINER:-"grsim"} ## name of container (should be same as in exec.sh)
-
-DEFAULT_USER_DIR="$(pwd)"
+iname=${DOCKER_IMAGE:-"ibis/grsim"}
+cname=${DOCKER_CONTAINER:-"grsim"}
 
 VAR=${@:-"/grsim_ws/grSim/bin/grSim"}
-
-## --net=mynetworkname
-## docker inspect -f '{{.NetworkSettings.Networks.mynetworkname.IPAddress}}' ${cname}
-## docker inspect -f '{{.NetworkSettings.Networks.mynetworkname.Gateway}}' ${cname}
 
 NET_OPT="--net=host"
 # for gdb
@@ -24,26 +18,20 @@ if [ "$(docker container ls -aq -f name=${cname})" ]; then
     docker rm ${cname}
 fi
 
+ARG="${OPT}    \
+    --privileged     \
+    ${NET_OPT}       \
+    --env=DISPLAY  \
+    --env=QT_X11_NO_MITSHM=1 \
+    --volume=/tmp/.X11-unix:/tmp/.X11-unix:rw \
+    --name=${cname} \
+    -w=/userdir \
+    ${iname} ${VAR}"
+
 if type nvidia-smi; then
-    docker run ${OPT}    \
-        --privileged     \
-        ${NET_OPT}       \
-        --env="DISPLAY"  \
-        --env="QT_X11_NO_MITSHM=1" \
-        --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
-        --gpus=all \
-        --name=${cname} \
-        -w="/userdir" \
-        ${iname} ${VAR}
+    echo "Nvidia driver environment detected."
+    docker run --gpus=all ${ARG}
 else
-    docker run ${OPT}    \
-        --privileged     \
-        ${NET_OPT}       \
-        --env="DISPLAY"  \
-        --env="QT_X11_NO_MITSHM=1" \
-        --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
-        --name=${cname} \
-        -w="/userdir" \
-        ${iname} ${VAR}
+    docker run ${ARG}
 fi
 
