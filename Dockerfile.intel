@@ -1,4 +1,4 @@
-FROM ubuntu:18:04
+FROM ubuntu:18.04
 
 RUN apt-get update -q -qq && apt-get upgrade -y && apt-get install -q -qq -y \
     git build-essential cmake qt5-default libqt5opengl5-dev libgl1-mesa-dev libglu1-mesa-dev libprotobuf-dev protobuf-compiler libode-dev libboost-dev
