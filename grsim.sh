@@ -1,7 +1,7 @@
 #!/bin/bash
 
 OPT=${DOCKER_OPTION} ## -it --cpuset-cpus 0-2
-iname=${DOCKER_IMAGE:-"ibis/grsim"}
+iname=${DOCKER_IMAGE:-"ibisssl/grsim"}
 cname=${DOCKER_CONTAINER:-"grsim"}
 
 VAR=${@:-"/grsim_ws/grSim/bin/grSim"}
